@@ -18,12 +18,11 @@ end
 
 module Muj
 
-  def self.eval(data,json)
+  def self.eval(str,json)
     require 'v8' unless defined? ::V8
     cxt = ::V8::Context.new
-    cxt.eval('var locals='+json+'; for(var attrname in locals) {this[attrname] = locals[attrname]; }');
     cxt.load(File.dirname(__FILE__)+"/mustache.js")
-    cxt.eval(data)
+    cxt.eval(%Q{Mustache.to_html("#{str.strip.gsub("\n",'\n\\').gsub('"','\"')}", #{json});})
   end
 
   def self.render(str,locals={})
