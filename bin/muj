@@ -4,6 +4,8 @@ require 'optparse'
 require 'muj'
 
 $muj_cli_json = false
+$muj_cli_views = nil
+$muj_cli_layout = nil
 
 module Muj
   class CLI
@@ -21,6 +23,14 @@ module Muj
         opts.separator " "
 
         opts.on("-j","--json", "Skip YAML parser") { $muj_cli_json = true; ARGV.delete("-j"); ARGV.delete("--json") }
+
+        opts.on('-v', '--views DIR', 'views directory') do |dir|
+          $muj_cli_views = dir
+        end
+
+        opts.on('-l', '--layout NAME', 'layout name (should be in views dir use > instead of / for subdir)') do |name|
+          $muj_cli_layout = name
+        end
 
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts
@@ -43,10 +53,11 @@ module Muj
         data = File.open(argv.first).read
       end
       template = File.open(argv[1]).read
+      opts = {'views' => $muj_cli_views, 'layout' => $muj_cli_layout}
       if $muj_cli_json
-        puts Muj.render_with_json(template,data)
+        puts Muj.render_with_json(template,data,opts)
       else
-        puts Muj.render_with_yaml(template,data)
+        puts Muj.render_with_yaml(template,data,opts)
       end
     end
   end
