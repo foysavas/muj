@@ -1,0 +1,1 @@
+{{>partial1}}{{user.first_name}}{{>partials>partials2}}
