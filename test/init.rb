@@ -13,6 +13,7 @@ class TestMuj < Test::Unit::TestCase
     @tmpl1_fn = FIXTURE_DIR+"/test.muj"
     @tmpl1 = File.open(@tmpl1_fn).read
     @tmpl2 = File.open(FIXTURE_DIR+"/test-partials.muj").read
+    @tmpl3 = "{{user.first_name}}"
   end
 
   def test_tilt
@@ -37,7 +38,12 @@ class TestMuj < Test::Unit::TestCase
   end
 
   def test_with_partials
-    r = Muj.render(@tmpl2,@data1,{'partials' => FIXTURE_DIR})
+    r = Muj.render(@tmpl2,@data1,{'views' => FIXTURE_DIR})
     assert_equal(r, "Hi Sophia!")
+  end
+
+  def test_with_layout
+    r = Muj.render(@tmpl3,@data1,{'views' => FIXTURE_DIR, 'layout' => 'layout'})
+    assert_equal("Hi Sophia!",r)
   end
 end

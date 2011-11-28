@@ -37,13 +37,23 @@ module Muj
     end
   end
 
+  def self.escape_template(v)
+    v.chomp.gsub("\n",'\n\\').gsub('"','\"')
+  end
+
   def self.eval(str,json,opts={})
     require 'v8' unless defined? ::V8
     cxt = ::V8::Context.new
     cxt.load(File.dirname(__FILE__)+"/mustache.js")
-    opts['partials'] = '.' unless opts['partials']
-    cxt['partials'] = Muj::Partials.new(opts['partials'])
-    cxt.eval(%Q{Mustache.to_html("#{str.chomp.gsub("\n",'\n\\').gsub('"','\"')}", #{json}, partials);})
+    opts['views'] = '.' unless opts['views']
+    cxt['partials'] = Muj::Partials.new(opts['views'])
+    cxt.eval("var locals = #{json};")
+    r = cxt.eval(%Q{locals.__yield__ = Mustache.to_html("#{Muj.escape_template(str)}", locals, partials);})
+    if opts['layout']
+      layout = cxt['partials'].__read(opts['layout'])
+      r = cxt.eval(%Q{Mustache.to_html("#{Muj.escape_template(layout)}", locals, partials);})
+    end
+    r
   end
 
   def self.render(str,locals={},opts={})
