@@ -42,9 +42,25 @@ module Muj
   end
 
   def self.eval(str,json,opts={})
-    require 'v8' unless defined? ::V8
-    cxt = ::V8::Context.new
-    cxt.load(File.dirname(__FILE__)+"/mustache.js")
+    unless (defined? ::Rhino) || (defined? ::V8)
+      begin
+        require 'rhino'
+      rescue LoadError
+        begin
+          require 'v8'
+        rescue LoadError
+          raise LoadError, "V8 (therubyracer) or Rhino (therubyrhino) needed." 
+        end
+      end
+    end
+    if (defined? ::Rhino)
+      cxt = ::Rhino::Context.new
+    elsif (defined? ::V8)
+      cxt = ::V8::Context.new
+    end
+    mustachejs_file = File.open(File.dirname(__FILE__)+"/mustache.js")
+    cxt.eval(mustachejs_file.read)
+    mustachejs_file.close
     opts['views'] = '.' unless opts['views']
     cxt['partials'] = Muj::Partials.new(opts['views'])
     cxt.eval("var locals = #{json};")
