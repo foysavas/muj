@@ -5,7 +5,7 @@ $:.unshift FILE_DIR+"/../lib"
 
 require 'rubygems'
 require 'test/unit'
-require 'lib/muj'
+require './lib/muj'
 
 class TestMuj < Test::Unit::TestCase
   def setup
@@ -45,5 +45,10 @@ class TestMuj < Test::Unit::TestCase
   def test_with_layout
     r = Muj.render(@tmpl3,@data1,{'views' => FIXTURE_DIR, 'layout' => 'layout'})
     assert_equal("Hi Sophia!",r)
+  end
+
+  def test_escaping
+    r = Muj.render("\"what's happening?\"\nreally?\n")
+    assert_equal(r,"\"what's happening?\"\nreally?\n")
   end
 end

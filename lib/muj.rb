@@ -38,7 +38,9 @@ module Muj
   end
 
   def self.escape_template(v)
-    v.chomp.gsub("\n",'\n\\').gsub('"','\"')
+    v.
+      gsub("\n",'\n').
+      gsub('"','\"')
   end
 
   def self.eval(str,json,opts={})
@@ -53,7 +55,7 @@ module Muj
         end
       end
     end
-    if (defined? ::Rhino)
+    if (defined?(::Rhino) && defined?(::Rhino::Context))
       cxt = ::Rhino::Context.new
     elsif (defined? ::V8)
       cxt = ::V8::Context.new
